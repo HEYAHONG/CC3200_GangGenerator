@@ -1,0 +1,38 @@
+<RCC>
+    <qresource prefix="/">
+        <file>qrc/bin/win/BuildGangImage.exe</file>
+        <file>qrc/bin/win/FlashAPI.dll</file>
+        <file>qrc/bin/linux/_codecs_cn.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_codecs_hk.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_codecs_iso2022.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_codecs_jp.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_codecs_kr.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_codecs_tw.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_ctypes.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_hashlib.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_multibytecodec.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/_ssl.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/BuildGangImage.bin</file>
+        <file>qrc/bin/linux/bz2.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/Crypto.Cipher._AES.so</file>
+        <file>qrc/bin/linux/Crypto.Hash._SHA256.so</file>
+        <file>qrc/bin/linux/Crypto.PublicKey._fastmath.so</file>
+        <file>qrc/bin/linux/Crypto.Util._counter.so</file>
+        <file>qrc/bin/linux/datetime.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/GangProgramSec.bin</file>
+        <file>qrc/bin/linux/libFlashAPILinux.so</file>
+        <file>qrc/bin/linux/libpython2.7.so.1.0</file>
+        <file>qrc/bin/linux/library.zip</file>
+        <file>qrc/bin/linux/mmap.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/pyexpat.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/readline.i386-linux-gnu.so</file>
+        <file>qrc/bin/linux/termios.i386-linux-gnu.so</file>
+        <file>qrc/bin/rbtl3100.dll</file>
+        <file>qrc/bin/rbtl3100s.dll</file>
+        <file>qrc/bin/rbtl3101.dll</file>
+        <file>qrc/bin/rbtl3101_121.dll</file>
+        <file>qrc/bin/rbtl3101_132.dll</file>
+        <file>qrc/share/icon/window_resources.ico</file>
+        <file>qrc/share/help.txt</file>
+    </qresource>
+</RCC>
