@@ -7,4 +7,5 @@
 * 本程序输出的文件夹中的output有可直接用于烧写SPI Flash的Programming.bin文件。
 
 > 例：生成一个含有mcuimg.bin文件的gang image
-> ![示例](doc/CC3200_GangGenerator.gif)
+
+>  ![示例](doc/CC3200_GangGenerator.gif)
