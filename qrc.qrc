@@ -34,5 +34,6 @@
         <file>qrc/bin/rbtl3101_132.dll</file>
         <file>qrc/share/icon/window_resources.ico</file>
         <file>qrc/share/help.txt</file>
+        <file>qrc/share/GangImageConfig.xml</file>
     </qresource>
 </RCC>

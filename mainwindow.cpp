@@ -13,6 +13,12 @@ MainWindow::MainWindow(QWidget *parent)
     //设置窗口标题
     setWindowTitle("CC3200_GangGenerator");
 
+    //初始化logtimer
+    log_timer=new QTimer(this);
+    connect(log_timer,SIGNAL(timeout()),this,SLOT(log_timer_timeout()));
+    log_timer->start(5);
+    log_mutex =new QMutex(QMutex::Recursive);
+
     //显示帮助
     {
         QFile help;
@@ -31,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     //准备好窗口控件
     flashsize=new SetFlashSize(this);
+
+
 
 
 }
@@ -207,7 +215,9 @@ void MainWindow::on_log_textChanged()
 }
 void MainWindow::log(QString data)
 {
-     ui->log->setPlainText(ui->log->toPlainText()+data);
+    log_mutex->lock();
+    log_queue.push_back(data);
+    log_mutex->unlock();
 }
 
 void MainWindow::on_action_triggered()
@@ -352,4 +362,156 @@ std::vector<QString> MainWindow::list_dir(QString dir)
    }
 
    return file_list;
+}
+
+ void MainWindow:: ConfigXmlGenAndOutput()
+ {
+     //定义输出的目录路径
+     QString outpath=ui->outputdir->text()+"/GangImageConfig.xml";
+     outpath.replace("//","/");
+
+
+    //定义Xml文件变量
+     QDomDocument xml;
+     log("-------------------------------------------------\n");
+     log("准备GangImageConfig.xml\n\r");
+     {//加载模板,模板中节点的顺序是固定的
+         QFile file;
+         file.setFileName(":/qrc/share/GangImageConfig.xml");
+         file.open(QIODevice::ReadOnly);
+         xml.setContent(file.readAll());
+         file.close();
+     }
+     QDomElement root=xml.documentElement();
+     QDomNode node=root.firstChild(); //获得第一个子节点
+
+     {//设置flashsize
+         log("设置flash大小\n\r");
+         while(!node.isElement()) node=node.nextSibling();
+         node.toElement().setAttribute("StorageCapacityBytes",QString::number(flashsize->flash_size*1024));
+     }
+
+     {//移动到GangCommandsSet节点
+         node=node.nextSibling();
+         while(!node.isElement()) node=node.nextSibling();
+         node=node.firstChild();
+         while(!node.isElement()) node=node.nextSibling();
+     }
+
+     {//添加格式化命令
+         log("添加格式化命令\n");
+         QDomElement cmd=xml.createElement("Command");
+
+         QDomElement CommandFormatStorage=xml.createElement("CommandFormatStorage");
+
+         QDomElement ReservedBlocksBitmap=xml.createElement("ReservedBlocksBitmap");
+         ReservedBlocksBitmap.appendChild(xml.createTextNode("402653184"));
+
+         QDomElement FormatStorageFlagsList=xml.createElement("FormatStorageFlagsList");
+
+         CommandFormatStorage.appendChild(ReservedBlocksBitmap);
+         CommandFormatStorage.appendChild(FormatStorageFlagsList);
+
+         cmd.appendChild(CommandFormatStorage);
+
+         //添加到GangCommandsSet节点
+         node.appendChild(cmd);
+
+     }
+
+     {//添加写文件命令
+         log("添加写文件命令\n");
+         foreach(QString filename,list_dir(ui->inputdir->text()))
+         {
+            log(filename+"\n");
+
+            QDomElement cmd=xml.createElement("Command");
+
+            QDomElement CommandWriteFile=xml.createElement("CommandWriteFile");
+            CommandWriteFile.setAttribute("CertificationFileName","");
+            CommandWriteFile.setAttribute("SignatureFileName","");
+
+            QDomElement FileSystemName=xml.createElement("FileSystemName");
+            FileSystemName.appendChild(xml.createTextNode(filename));
+
+            QDomElement FileOpenFlagsList=xml.createElement("FileOpenFlagsList");
+            QDomElement FileOpenFlag=xml.createElement("FileOpenFlag");
+            FileOpenFlag.appendChild(xml.createTextNode("FILE_OPEN_FLAG_FAILSAFE"));
+            FileOpenFlagsList.appendChild(FileOpenFlag);
+
+
+                QString path=ui->inputdir->text()+filename;
+                path.replace("//","/");
+                QFile file;
+                file.setFileName(path);
+                file.open(QIODevice::ReadOnly);
+
+                QDomElement MaxFileSize=xml.createElement("MaxFileSize");
+                MaxFileSize.appendChild(xml.createTextNode(QString::number(file.size())));
+
+                QDomElement FileLocation=xml.createElement("FileLocation");
+                FileLocation.appendChild(xml.createTextNode(path));
+
+                file.close();
+
+
+            CommandWriteFile.appendChild(FileSystemName);
+            CommandWriteFile.appendChild(FileOpenFlagsList);
+            CommandWriteFile.appendChild(MaxFileSize);
+            CommandWriteFile.appendChild(FileLocation);
+
+            cmd.appendChild(CommandWriteFile);
+
+            //添加到GangCommandsSet节点
+            node.appendChild(cmd);
+
+         }
+         log("\n");
+
+     }
+
+     {//保存xml文件
+         QFile file;
+         file.setFileName(outpath);
+         file.open(QIODevice::ReadWrite);
+         //输出到文件
+         QTextStream out_stream(&file);
+         xml.save(out_stream,4); //缩进4格
+
+
+         log("保存GangImageConfig.xml\n\r");
+         log("-------------------------------------------------\n");
+
+         file.close();
+     }
+
+
+     {//执行BuildGangImage
+      log("-------------------------------------------------\n");
+      log("执行BuildGangImage\n");
+#ifdef WIN32
+      BuildThread *t=new BuildThread(QString("BuildGangImage.exe -v -i ")+ui->outputdir->text(),(MainWindow *)this);
+        //WinExec((QString("BuildGangImage.exe -v -i ")+ui->outputdir->text()).toStdString().c_str(),SW_SHOW);
+
+         //打开输出文件夹
+        //WinExec((QString("explorer ")+ui->outputdir->text().replace("//","/").replace("/","\\")).toStdString().c_str(),SW_SHOW);
+#else
+#error "暂时只支持window"
+#endif
+      log("-------------------------------------------------\n");
+     }
+
+ }
+
+void MainWindow::on_action_GangImage_triggered()
+{
+   ConfigXmlGenAndOutput();
+}
+
+void MainWindow::log_timer_timeout()
+{
+
+    if(log_queue.length()==0) return;
+    ui->log->setPlainText(ui->log->toPlainText()+log_queue[0]);
+    log_queue.pop_front();
 }

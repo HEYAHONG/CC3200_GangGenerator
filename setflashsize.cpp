@@ -8,6 +8,7 @@ SetFlashSize::SetFlashSize(QWidget *parent) :
     ui->setupUi(this);
     setWindowTitle("设置Flash大小");
     setFixedSize(size());
+    flash_size=1024;
 }
 
 SetFlashSize::~SetFlashSize()

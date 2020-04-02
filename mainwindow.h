@@ -10,7 +10,12 @@
 #include <QPlainTextEdit>
 #include <QScrollBar>
 #include <QFileDialog>
+#include <QDomComment>
+#include <QMutex>
+#include <QQueue>
+#include <QTimer>
 #include "setflashsize.h"
+#include <buildthread.h>
 
 #ifdef WIN32
 
@@ -55,6 +60,8 @@ private slots:
 
     void on_action_mcuimg_bin_triggered();
 
+    void on_action_GangImage_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -63,10 +70,22 @@ private:
     //准备好文件，将qrc中的文件释放到临时文件夹中
     QString rc_dir;
     QString Execute_Path;
-    void log(QString data);
+
     void prepare_files();
 
     //列出目录中的文件
     std::vector<QString> list_dir(QString dir);
+    //config.xml生成和文件输出
+    void ConfigXmlGenAndOutput();
+
+    //日志窗口相关
+    QQueue<QString> log_queue;
+    QTimer          *log_timer;
+    QMutex          *log_mutex;
+
+public:
+    void log(QString data);
+public slots:
+    void log_timer_timeout();
 };
 #endif // MAINWINDOW_H
