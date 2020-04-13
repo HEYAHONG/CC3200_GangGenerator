@@ -1,5 +1,6 @@
 #ifndef BUILDTHREAD_H
 #define BUILDTHREAD_H
+#include <QObject>
 #include <QThread>
 #include <mainwindow.h>
 #ifdef WIN32
@@ -10,6 +11,7 @@
 
 class BuildThread : public QThread
 {
+Q_OBJECT
 public:
     BuildThread(QString _cmd,void *_main);
     ~BuildThread();
@@ -25,6 +27,8 @@ public:
     SECURITY_ATTRIBUTES saAttr;
 #endif
     void log(QString data);
+signals:
+    void BuildThread_fininshed(bool Is_Normal);
 };
 
 #endif // BUILDTHREAD_H

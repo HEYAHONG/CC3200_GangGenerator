@@ -16,6 +16,7 @@
 #include <QTimer>
 #include "setflashsize.h"
 #include <buildthread.h>
+#include <cmdsettings.h>
 
 #ifdef WIN32
 
@@ -62,6 +63,8 @@ private slots:
 
     void on_action_GangImage_triggered();
 
+    void on_action_6_triggered();
+
 private:
     Ui::MainWindow *ui;
 
@@ -83,9 +86,13 @@ private:
     QTimer          *log_timer;
     QMutex          *log_mutex;
 
+    //命令执行窗口
+    cmdsettings *cmd;
+
 public:
     void log(QString data);
 public slots:
     void log_timer_timeout();
+    void BuildThread_fininshed(bool Is_Normal);
 };
 #endif // MAINWINDOW_H

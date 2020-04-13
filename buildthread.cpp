@@ -135,6 +135,11 @@ if ( ! SetHandleInformation(hChildStd_IN_Wr, HANDLE_FLAG_INHERIT, 0) )
         }
        }
        t->terminate();
+       emit BuildThread_fininshed(true);
+    }
+    else
+    {
+       emit  BuildThread_fininshed(false);
     }
 
 }
@@ -146,3 +151,4 @@ void BuildThread::log(QString data)
 {
     ((MainWindow *)main)->log(data);
 }
+

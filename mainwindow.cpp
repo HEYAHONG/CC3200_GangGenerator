@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent)
     log_timer->start(5);
     log_mutex =new QMutex(QMutex::Recursive);
 
+    //初始化脚本窗口
+    cmd=new cmdsettings(this);
+
     //显示帮助
     {
         QFile help;
@@ -370,6 +373,28 @@ std::vector<QString> MainWindow::list_dir(QString dir)
      QString outpath=ui->outputdir->text()+"/GangImageConfig.xml";
      outpath.replace("//","/");
 
+     {//设置环境变量
+#ifndef WIN32
+         qputenv("INPUTDIR",ui->inputdir->text().replace("//","/").toStdString().c_str());
+         qputenv("OUTPUTDIR",ui->outputdir->text().replace("//","/").toStdString().c_str());
+#else
+         qputenv("INPUTDIR",ui->inputdir->text().replace("//","/").replace("/","\\").toStdString().c_str());
+         qputenv("OUTPUTDIR",ui->outputdir->text().replace("//","/").replace("/","\\").toStdString().c_str());
+#endif
+     }
+
+     {//执行脚本
+         foreach(cmd_struct cmd,cmd->getData())
+         {
+             if(cmd.flags & CMD_FLAGS_BEFORE_LIST)
+             {
+                 if(cmd.cmd.length()>0)
+                 {
+                     system(cmd.cmd.toStdString().c_str());
+                 }
+             }
+         }
+     }
 
     //定义Xml文件变量
      QDomDocument xml;
@@ -486,11 +511,25 @@ std::vector<QString> MainWindow::list_dir(QString dir)
      }
 
 
+     {//执行脚本
+         foreach(cmd_struct cmd,cmd->getData())
+         {
+             if(cmd.flags & CMD_FLAGS_AFTER_LIST)
+             {
+                 if(cmd.cmd.length()>0)
+                 {
+                     system(cmd.cmd.toStdString().c_str());
+                 }
+             }
+         }
+     }
+
      {//执行BuildGangImage
       log("-------------------------------------------------\n");
       log("执行BuildGangImage\n");
 #ifdef WIN32
       BuildThread *t=new BuildThread(QString("BuildGangImage.exe -v -i ")+ui->outputdir->text(),(MainWindow *)this);
+      connect(t,SIGNAL(BuildThread_fininshed(bool)),this,SLOT(BuildThread_fininshed(bool)));
         //WinExec((QString("BuildGangImage.exe -v -i ")+ui->outputdir->text()).toStdString().c_str(),SW_SHOW);
 
          //打开输出文件夹
@@ -501,6 +540,25 @@ std::vector<QString> MainWindow::list_dir(QString dir)
       log("-------------------------------------------------\n");
      }
 
+ }
+
+ void MainWindow::BuildThread_fininshed(bool Is_Normal)
+ {
+     if(Is_Normal)
+     {
+         {//执行脚本
+             foreach(cmd_struct cmd,cmd->getData())
+             {
+                 if(cmd.flags & CMD_FLAGS_FINISHED)
+                 {
+                     if(cmd.cmd.length()>0)
+                     {
+                         system(cmd.cmd.toStdString().c_str());
+                     }
+                 }
+             }
+         }
+     }
  }
 
 void MainWindow::on_action_GangImage_triggered()
@@ -514,4 +572,9 @@ void MainWindow::log_timer_timeout()
     if(log_queue.length()==0) return;
     ui->log->setPlainText(ui->log->toPlainText()+log_queue[0]);
     log_queue.pop_front();
+}
+
+void MainWindow::on_action_6_triggered()
+{//打开脚本设置窗口
+    cmd->show();
 }

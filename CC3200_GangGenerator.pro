@@ -17,16 +17,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     buildthread.cpp \
+    cmdsettings.cpp \
     main.cpp \
     mainwindow.cpp \
     setflashsize.cpp
 
 HEADERS += \
     buildthread.h \
+    cmdsettings.h \
     mainwindow.h \
     setflashsize.h
 
 FORMS += \
+    cmdsettings.ui \
     mainwindow.ui \
     setflashsize.ui
 #windows下的rc文件

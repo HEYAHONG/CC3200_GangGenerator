@@ -140,6 +140,8 @@
     <addaction name="actionFlash"/>
     <addaction name="action_mcuimg_bin"/>
     <addaction name="action_GangImage"/>
+    <addaction name="separator"/>
+    <addaction name="action_6"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -206,6 +208,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="action_6">
+   <property name="text">
+    <string>脚本设置窗口</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+E</string>
    </property>
   </action>
  </widget>
